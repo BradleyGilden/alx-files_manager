@@ -4,7 +4,10 @@ import redisClient from '../utils/redis';
 
 const getStatus = async (_req, res) => {
   if (dbClient.isAlive() && redisClient.isAlive()) {
-    res.status(200).json({ redis: true, db: true });
+    res.status(200).json({
+      redis: redisClient.isAlive(),
+      db: dbClient.isAlive(),
+    });
   }
 };
 
