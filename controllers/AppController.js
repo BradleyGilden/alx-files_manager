@@ -9,6 +9,12 @@ const getStatus = async (_req, res) => {
 };
 
 const getStats = async (_req, res) => {
-  const fileCount = await dbClient.nbFiles;
+  const fileCount = await dbClient.nbFiles();
+  const userCount = await dbClient.nbUsers();
+  res.status(200).json({ users: userCount, files: fileCount });
+};
 
+export {
+  getStatus,
+  getStats,
 };

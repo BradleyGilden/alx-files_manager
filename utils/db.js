@@ -6,10 +6,10 @@ class DBClient {
     const HOST = process.env.DB_HOST || 'localhost';
     const PORT = process.env.DB_PORT || 27017;
     const DB_NAME = process.env.DB_DATABASE || 'files_manager';
-    const URL = `mongodb://${HOST}:${PORT}`;
-    // if (process.env.MONGO_URI) {
-    //   URL = process.env.MONGO_URI;
-    // }
+    let URL = `mongodb://${HOST}:${PORT}`;
+    if (process.env.MONGO_URI) {
+      URL = process.env.MONGO_URI;
+    }
     this.client = new MongoClient(URL, { useNewUrlParser: true, useUnifiedTopology: true });
     this.db = null;
     this.client.connect()

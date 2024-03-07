@@ -1,8 +1,12 @@
 import express from 'express';
+import { getStatus, getStats } from '../controllers/AppController';
 
-let getStatus;
-let getStats;
 const baseRouter = express.Router();
+const statRouter = express.Router();
 
-baseRouter.get('/status', getStatus);
-baseRouter.get('/stats', getStats);
+statRouter.get('/status', getStatus);
+statRouter.get('/stats', getStats);
+
+baseRouter.use('/', statRouter);
+
+export default baseRouter;
