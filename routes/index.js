@@ -1,12 +1,15 @@
 import express from 'express';
-import { getStatus, getStats } from '../controllers/AppController';
+import AppController from '../controllers/AppController';
+import UsersController from '../controllers/UsersController';
 
+// router definition
 const baseRouter = express.Router();
-const statRouter = express.Router();
 
-statRouter.get('/status', getStatus);
-statRouter.get('/stats', getStats);
+// stat routes
+baseRouter.get('/status', AppController.getStatus);
+baseRouter.get('/stats', AppController.getStats);
 
-baseRouter.use('/', statRouter);
+// user routes
+baseRouter.post('/users', UsersController.postNow);
 
 export default baseRouter;

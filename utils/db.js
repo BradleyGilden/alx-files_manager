@@ -12,9 +12,13 @@ class DBClient {
     }
     this.client = new MongoClient(URL, { useNewUrlParser: true, useUnifiedTopology: true });
     this.db = null;
+    this.usersCollection = null;
+    this.filesCollection = null;
     this.client.connect()
       .then(() => {
         this.db = this.client.db(DB_NAME);
+        this.usersCollection = this.db.collection('users');
+        this.filesCollection = this.db.collection('files');
       }).catch((err) => {
         console.log(err);
       });
@@ -33,8 +37,7 @@ class DBClient {
    * @returns {Number} number of users
    */
   async nbUsers() {
-    const users = this.db.collection('users');
-    const usersCount = await users.countDocuments();
+    const usersCount = await this.usersCollection.countDocuments();
     return usersCount;
   }
 
@@ -43,8 +46,7 @@ class DBClient {
    * @returns {Number} number of files
    */
   async nbFiles() {
-    const files = this.db.collection('files');
-    const filesCount = await files.countDocuments();
+    const filesCount = await this.filesCollection.countDocuments();
     return filesCount;
   }
 }

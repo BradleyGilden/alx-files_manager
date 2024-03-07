@@ -1,4 +1,4 @@
-// This file contains all the applications controllers
+// This file contains all the base applications controllers
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
@@ -17,7 +17,7 @@ const getStats = async (_req, res) => {
   res.status(200).json({ users: userCount, files: fileCount });
 };
 
-export {
+export default {
   getStatus,
   getStats,
 };
