@@ -13,7 +13,7 @@ class RedisClient {
 
   /**
    * isAlive - a health check for the client to see if it is connected
-   * @returns {boolean} - true if connected, false otherwise
+   * @returns {Boolean} true if connected, false otherwise
    */
   isAlive() {
     return this.client.connected;
@@ -21,8 +21,8 @@ class RedisClient {
 
   /**
    * get - implement get functionality in Redis server
-   * @key - key to access the value @val
-   * @returns {String} - value of the key being accessed
+   * @key key to access the value '@val'
+   * @returns {String} value of the key being accessed
    */
   async get(key) {
     try {
@@ -35,9 +35,9 @@ class RedisClient {
 
   /**
    * set - implement set functionality in Redis server
-   * @key - key to access the value @val
-   * @val - value to to be set
-   * @ex - expiration time of the key
+   * @key key to access the value '@val'
+   * @val value to to be set
+   * @ex expiration time of the key
    */
   async set(key, val, ex) {
     try {
@@ -49,7 +49,7 @@ class RedisClient {
 
   /**
    * del - implement del (delete) functionality in Redis server
-   * @key - key of the value to delete
+   * @key key of the value to delete
    */
   async del(key) {
     try {

@@ -22,7 +22,7 @@ class DBClient {
 
   /**
    * isAlive - a health check for the client to see if it is connected
-   * @returns {boolean} - true if connected, false otherwise
+   * @returns {Boolean} true if connected, false otherwise
    */
   isAlive() {
     return this.client.isConnected();
@@ -30,7 +30,7 @@ class DBClient {
 
   /**
    * nbUsers - counts the number of entries in the user collection
-   * @returns {Number} - number of users
+   * @returns {Number} number of users
    */
   async nbUsers() {
     const users = this.db.collection('users');
@@ -40,7 +40,7 @@ class DBClient {
 
   /**
    * nbUsers - counts the number of entries in the files collection
-   * @returns {Number} - number of files
+   * @returns {Number} number of files
    */
   async nbFiles() {
     const files = this.db.collection('files');
