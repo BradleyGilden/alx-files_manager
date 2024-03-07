@@ -5,7 +5,7 @@ class RedisClient {
   constructor() {
     // constructor of the RedisClient class
     this.client = redis.createClient();
-    this.client.on('error', (err) => console.log(String(err)));
+    this.client.on('error', (err) => console.log(err));
     this._get = promisify(this.client.get).bind(this.client);
     this._set = promisify(this.client.set).bind(this.client);
     this._del = promisify(this.client.del).bind(this.client);
