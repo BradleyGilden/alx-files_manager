@@ -34,7 +34,7 @@ class DBClient {
 
   /**
    * nbUsers - counts the number of entries in the user collection
-   * @returns {Number} number of users
+   * @returns {Promise<Number>} number of users
    */
   async nbUsers() {
     const usersCount = await this.usersCollection.countDocuments();
@@ -43,7 +43,7 @@ class DBClient {
 
   /**
    * nbUsers - counts the number of entries in the files collection
-   * @returns {Number} number of files
+   * @returns {Promise<Number>} number of files
    */
   async nbFiles() {
     const filesCount = await this.filesCollection.countDocuments();
