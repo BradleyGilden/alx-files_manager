@@ -123,7 +123,7 @@ const getIndex = async (req, res) => {
   // assigning defaults
   parentId = parentId || 0;
   page = page || 0;
-
+  console.log(page);
   // get user id stored in redis
   const userToken = await redisClient.get(`auth_${token}`);
   if (!userToken) return res.status(401).json({ error: 'Unauthorized' });
@@ -133,7 +133,7 @@ const getIndex = async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
   // get pagination data
-  const aggregation = [{ $limit: 20 }, { $skip: page * 20 }];
+  const aggregation = [{ $skip: page * 20 }, { $limit: 20 }];
   if (parentId !== 0) aggregation.unshift({ $match: { parentId: ObjectId(parentId) } });
   const docs = [];
   const aggroCursor = await dbClient.filesCollection.aggregate(aggregation);
@@ -149,6 +149,7 @@ const getIndex = async (req, res) => {
     };
     docs.push(filteredDoc);
   });
+  console.log(docs.length);
   return res.status(200).json(docs);
 };
 
