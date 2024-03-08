@@ -20,9 +20,10 @@ const postNow = async (req, res) => {
 
 const getMe = async (req, res) => {
   const token = req.headers['x-token'];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
   const userId = await redisClient.get(`auth_${token}`);
   const user = await dbClient.usersCollection.findOne({ _id: ObjectId(userId) });
-
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
   return res.status(200).json({ id: userId, email: user.email });

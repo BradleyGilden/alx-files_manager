@@ -18,6 +18,8 @@ baseRouter
   .get('/connect', AuthController.getConnect)
   .get('/disconnect', AuthController.getDisconnect)
 // file routes
-  .post('/files', FilesController.postUpload);
+  .post('/files', FilesController.postUpload)
+  .get('/files/:id', FilesController.getShow)
+  .get('/files', FilesController.getIndex);
 
 export default baseRouter;

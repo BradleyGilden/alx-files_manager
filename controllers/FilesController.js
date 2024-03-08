@@ -9,6 +9,7 @@ import redisClient from '../utils/redis';
 // handles uploading of media to the server
 const postUpload = async (req, res) => {
   const token = req.headers['x-token'];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
   // get user id stored in redis
   const userToken = await redisClient.get(`auth_${token}`);
@@ -25,7 +26,7 @@ const postUpload = async (req, res) => {
   let { parentId, isPublic } = req.body;
 
   // setting defaults
-  parentId = parentId === '0' || !parentId ? 0 : parentId;
+  parentId = parentId === '0' || !parentId ? 0 : ObjectId(parentId);
   isPublic = isPublic === undefined ? false : isPublic;
 
   // check mandatory fields
@@ -52,7 +53,7 @@ const postUpload = async (req, res) => {
     const createdDoc = await dbClient.filesCollection.insertOne(docInit);
     return res.status(201).json({
       id: createdDoc.insertedId,
-      userId: user._id,
+      userId: String(user._id),
       name,
       type,
       isPublic,
@@ -77,7 +78,7 @@ const postUpload = async (req, res) => {
   const createdDoc = await dbClient.filesCollection.insertOne(docInit);
   return res.status(201).json({
     id: createdDoc.insertedId,
-    userId: user._id,
+    userId: String(user._id),
     name,
     type,
     isPublic,
@@ -85,6 +86,74 @@ const postUpload = async (req, res) => {
   });
 };
 
+// get file based on file id
+const getShow = async (req, res) => {
+  const token = req.headers['x-token'];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const { id: docId } = req.params;
+  // get user id stored in redis
+  const userToken = await redisClient.get(`auth_${token}`);
+  if (!userToken) return res.status(401).json({ error: 'Unauthorized' });
+
+  // get user from the database
+  const user = await dbClient.usersCollection.findOne({ _id: ObjectId(userToken) });
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  const doc = await dbClient.filesCollection.findOne({ _id: ObjectId(docId), userId: user._id });
+  if (!doc) return res.status(404).json({ error: 'Not found' });
+
+  return res.status(201).json({
+    id: docId,
+    userId: String(user._id),
+    name: doc.name,
+    type: doc.type,
+    isPublic: doc.isPublic,
+    parentId: String(doc.parentId),
+  });
+};
+
+// get range of files via pagination based on search queries
+const getIndex = async (req, res) => {
+  const token = req.headers['x-token'];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  // getting search query parameters
+  let { parentId, page } = req.query;
+  // assigning defaults
+  parentId = parentId || 0;
+  page = page || 0;
+
+  // get user id stored in redis
+  const userToken = await redisClient.get(`auth_${token}`);
+  if (!userToken) return res.status(401).json({ error: 'Unauthorized' });
+
+  // get user from the database
+  const user = await dbClient.usersCollection.findOne({ _id: ObjectId(userToken) });
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  // get pagination data
+  const aggregation = [{ $limit: 20 }, { $skip: page * 20 }];
+  if (parentId !== 0) aggregation.unshift({ $match: { parentId: ObjectId(parentId) } });
+  const docs = [];
+  const aggroCursor = await dbClient.filesCollection.aggregate(aggregation);
+  const docArray = await aggroCursor.toArray();
+  docArray.forEach((doc) => {
+    const filteredDoc = {
+      id: String(doc._id),
+      userId: String(doc.userId),
+      name: doc.name,
+      type: doc.type,
+      isPublic: doc.isPublic,
+      parentId: doc.parentId,
+    };
+    docs.push(filteredDoc);
+  });
+  return res.status(200).json(docs);
+};
+
 export default {
   postUpload,
+  getShow,
+  getIndex,
 };
