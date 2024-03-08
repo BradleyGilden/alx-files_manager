@@ -22,7 +22,7 @@ class RedisClient {
   /**
    * get - implement get functionality in Redis server
    * @key key to access the value '@val'
-   * @returns {String} value of the key being accessed
+   * @returns {Promise<String>} value of the key being accessed
    */
   async get(key) {
     try {
@@ -38,6 +38,7 @@ class RedisClient {
    * @key key to access the value '@val'
    * @val value to to be set
    * @ex expiration time of the key
+   * @returns {Promise}
    */
   async set(key, val, ex) {
     try {
@@ -50,6 +51,7 @@ class RedisClient {
   /**
    * del - implement del (delete) functionality in Redis server
    * @key key of the value to delete
+   * @returns {Promise}
    */
   async del(key) {
     try {
