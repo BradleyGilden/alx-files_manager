@@ -123,7 +123,6 @@ const getIndex = async (req, res) => {
   // assigning defaults
   parentId = parentId || 0;
   page = page || 0;
-  console.log(page);
   // get user id stored in redis
   const userToken = await redisClient.get(`auth_${token}`);
   if (!userToken) return res.status(401).json({ error: 'Unauthorized' });
@@ -149,7 +148,6 @@ const getIndex = async (req, res) => {
     };
     docs.push(filteredDoc);
   });
-  console.log(docs.length);
   return res.status(200).json(docs);
 };
 
