@@ -20,6 +20,8 @@ baseRouter
 // file routes
   .post('/files', FilesController.postUpload)
   .get('/files/:id', FilesController.getShow)
-  .get('/files', FilesController.getIndex);
+  .get('/files', FilesController.getIndex)
+  .put('/files/:id/publish', FilesController.putPublish)
+  .put('/files/:id/unpublish', FilesController.putUnpublish);
 
 export default baseRouter;

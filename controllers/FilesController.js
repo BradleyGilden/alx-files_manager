@@ -151,8 +151,64 @@ const getIndex = async (req, res) => {
   return res.status(200).json(docs);
 };
 
+const putPublish = async (req, res) => {
+  const token = req.headers['x-token'];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  const { id: docId } = req.params;
+  // get user id stored in redis
+  const userToken = await redisClient.get(`auth_${token}`);
+  if (!userToken) return res.status(401).json({ error: 'Unauthorized' });
+
+  // get user from the database
+  const user = await dbClient.usersCollection.findOne({ _id: ObjectId(userToken) });
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  const doc = await dbClient.filesCollection.findOne({ _id: ObjectId(docId), userId: user._id });
+  if (!doc) return res.status(404).json({ error: 'Not found' });
+
+  await dbClient.filesCollection.updateOne({ _id: ObjectId(docId) }, { $set: { isPublic: true } });
+
+  return res.status(200).json({
+    id: String(doc._id),
+    userId: String(doc.userId),
+    name: doc.name,
+    type: doc.type,
+    isPublic: true,
+    parentId: doc.parentId,
+  });
+};
+
+const putUnpublish = async (req, res) => {
+  const token = req.headers['x-token'];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  const { id: docId } = req.params;
+  // get user id stored in redis
+  const userToken = await redisClient.get(`auth_${token}`);
+  if (!userToken) return res.status(401).json({ error: 'Unauthorized' });
+
+  // get user from the database
+  const user = await dbClient.usersCollection.findOne({ _id: ObjectId(userToken) });
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  const doc = await dbClient.filesCollection.findOne({ _id: ObjectId(docId), userId: user._id });
+  if (!doc) return res.status(404).json({ error: 'Not found' });
+
+  await dbClient.filesCollection.updateOne({ _id: ObjectId(docId) }, { $set: { isPublic: false } });
+
+  return res.status(200).json({
+    id: String(doc._id),
+    userId: String(doc.userId),
+    name: doc.name,
+    type: doc.type,
+    isPublic: false,
+    parentId: doc.parentId,
+  });
+};
+
 export default {
   postUpload,
   getShow,
   getIndex,
+  putPublish,
+  putUnpublish,
 };
