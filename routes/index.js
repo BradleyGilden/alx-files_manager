@@ -22,6 +22,7 @@ baseRouter
   .get('/files/:id', FilesController.getShow)
   .get('/files', FilesController.getIndex)
   .put('/files/:id/publish', FilesController.putPublish)
-  .put('/files/:id/unpublish', FilesController.putUnpublish);
+  .put('/files/:id/unpublish', FilesController.putUnpublish)
+  .get('/files/:id/data', FilesController.getFile);
 
 export default baseRouter;
