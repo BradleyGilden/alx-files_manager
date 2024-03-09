@@ -224,9 +224,7 @@ const getFile = async (req, res) => {
   if (doc.type === 'folder') return res.status(404).json({ error: "A folder doesn't have content" });
 
   // get correct mime-type
-  let filename = doc.localPath.split('/');
-  filename = String(filename.slice(-1));
-  const mimeType = mime.contentType(filename) || 'application/octet-stream';
+  const mimeType = mime.contentType(doc.name) || 'application/octet-stream';
 
   try {
     const data = await fs.promises.readFile(doc.localPath);
