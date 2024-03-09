@@ -235,7 +235,7 @@ const getFile = async (req, res) => {
   const realPath = size === 0 ? fileDocument.localPath : `${fileDocument.localPath}_${size}`;
 
   try {
-    const dataFile = fs.readFileSync(realPath);
+    const dataFile = await fs.promises.readFile(realPath);
     const mimeType = mime.contentType(fileDocument.name);
     res.setHeader('Content-Type', mimeType);
     return res.json(dataFile);
