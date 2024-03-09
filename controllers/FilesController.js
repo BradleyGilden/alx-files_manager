@@ -207,39 +207,30 @@ const putUnpublish = async (req, res) => {
 };
 
 const getFile = async (req, res) => {
-  const idFile = req.params.id || '';
-  const size = req.query.size || 0;
+  const token = req.headers['x-token'];
+  if (!token) return res.status(404).json({ error: 'Not found' });
+  const { id: docId } = req.params;
+  // get user id stored in redis
+  const userToken = await redisClient.get(`auth_${token}`);
+  if (!userToken) return res.status(404).json({ error: 'Not found' });
 
-  const fileDocument = await dbClient.filesCollection.findOne({ _id: ObjectId(idFile) });
-  if (!fileDocument) return res.status(404).json({ error: 'Not found' });
+  // get user from the database
+  const user = await dbClient.usersCollection.findOne({ _id: ObjectId(userToken) });
+  if (!user) return res.status(404).json({ error: 'Not found' });
 
-  const { isPublic } = fileDocument;
-  const { userId } = fileDocument;
-  const { type } = fileDocument;
+  const doc = await dbClient.filesCollection.findOne({ _id: ObjectId(docId), userId: user._id });
+  if (!doc || doc.isPublic === false) return res.status(404).json({ error: 'Not found' });
 
-  let user = null;
-  let owner = false;
+  if (doc.type === 'folder') return res.status(404).json({ error: "A folder doesn't have content" });
 
-  const token = req.header('X-Token') || null;
-  if (token) {
-    const redisToken = await redisClient.get(`auth_${token}`);
-    if (redisToken) {
-      user = await dbClient.usersCollection.findOne({ _id: ObjectId(redisToken) });
-      if (user) owner = user._id.toString() === userId.toString();
-    }
-  }
-
-  if (!isPublic && !owner) return res.status(404).json({ error: 'Not found' });
-  if (['folder'].includes(type)) return res.status(400).json({ error: 'A folder doesn\'t have content' });
-
-  const realPath = size === 0 ? fileDocument.localPath : `${fileDocument.localPath}_${size}`;
+  // get correct mime-type
+  const mimeType = mime.contentType(doc.name) || 'application/octet-stream';
 
   try {
-    const dataFile = await fs.promises.readFile(realPath);
-    const mimeType = mime.contentType(fileDocument.name);
-    res.setHeader('Content-Type', mimeType);
-    return res.json(dataFile);
-  } catch (error) {
+    const data = await fs.promises.readFile(doc.localPath);
+    res.set('Content-Type', mimeType);
+    return res.status(200).send(data);
+  } catch (_err) {
     return res.status(404).json({ error: 'Not found' });
   }
 };
